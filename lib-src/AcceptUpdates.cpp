@@ -16,8 +16,7 @@ TimeoutTagger::TimeoutTagger(Event::duration_t threshold)
 Event TimeoutTagger::acceptUpdate(const EventWrapper *task) const
 {
     Event event = AcceptUpdates::acceptUpdate(task);
-    if (event.hasKnownDuration() && event.duration() > d_threshold)
-        event.type(Event::TIMEOUT);
+    if (event.hasKnownDxxnt::TIMEOUT);
     return event;
 }
 
