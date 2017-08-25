@@ -9,7 +9,7 @@ Event AcceptUpdates::acceptUpdate(const EventWrapper *task) const
 }
 
 TimeoutTagger::TimeoutTagger(Event::duration_t threshold)
-: d_threshold(threshold)
+: d_threshold(threshold) 
 {
 }
 
