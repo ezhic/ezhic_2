@@ -13,7 +13,7 @@ Circuit &Registry::circuit(const Label &label)
     return d_circuits[label];
 }
 
-Registry::Registry() : d_timer(0)
+Registry::Registry() : d_timer(new Timer())
 {
     writeBundle(DEFAULT_BUNDLE, Bundle());
 }
@@ -25,9 +25,7 @@ void Registry::acceptUpdate(const EventWrapper *task)
 
 Registry &Registry::cloneInTimer(const Timer &timer)
 {
-    if (d_timer)
-        delete d_timer;
-    d_timer = timer.clone();
+    timer.clone().swap(d_timer);
     return *this;
 }
 
@@ -49,7 +47,7 @@ Registry &Registry::instance()
 
 const Bundle &Registry::bundle(const Label &label)
 {
-    std::map<Label, Bundle>::iterator it = d_bundles.find(label);
+    auto it = d_bundles.find(label);
     if (it == d_bundles.end()) {
         it = d_bundles.insert(std::make_pair(label, bundle(DEFAULT_BUNDLE)))
                  .first;
@@ -57,9 +55,14 @@ const Bundle &Registry::bundle(const Label &label)
     return it->second;
 }
 
+const Timer &Registry::timer() const
+{
+    return *d_timer;
+}
+
 namespace ezhic {
 namespace ezreg {
-Timer *timer()
+const Timer &timer()
 {
     return Registry::instance().timer();
 }

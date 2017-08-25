@@ -27,7 +27,7 @@ class FixedValueValidator : public BRunner
     {
         TNullable<T> &res = dynamic_cast<TNullable<T> &>(result);
         // arguably, an empty result is not what we wanted
-        if (res.isNull() || d_value != res.value())
+        if (res.isNull() || d_value != *res)
             ezreg::circuit(d_label).acceptUpdate(Event::INVALID);
     }
 

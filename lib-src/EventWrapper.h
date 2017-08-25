@@ -20,7 +20,7 @@ class EventWrapper
     virtual void start();
     virtual void done();
 
-    void timer(const Timer *timer);
+    void timer(const Timer &timer);
 
     const Label &label() const { return d_label; }
     void label(const Label &label) { d_label = label; }

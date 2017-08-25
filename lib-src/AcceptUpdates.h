@@ -2,6 +2,7 @@
 #define INCLUDED_ACCEPTINTERFACE
 
 #include "Event.h"
+#include <memory>
 #include <vector>
 
 namespace ezhic {
@@ -12,16 +13,17 @@ class AcceptUpdates
   public:
     virtual ~AcceptUpdates() {}
     virtual Event acceptUpdate(const EventWrapper *task) const;
-    virtual AcceptUpdates *clone() const = 0;
+    virtual std::unique_ptr<AcceptUpdates> clone() const = 0;
 };
 
 template <typename Derived>
 class AcceptUpdatesCloneable : public AcceptUpdates
 {
   public:
-    virtual AcceptUpdates *clone() const
+    virtual std::unique_ptr<AcceptUpdates> clone() const
     {
-        return new Derived(static_cast<Derived const &>(*this));
+        return std::unique_ptr<AcceptUpdates>{
+            new Derived(static_cast<Derived const &>(*this))};
     }
 };
 
@@ -48,7 +50,7 @@ class AcceptorsArray : public AcceptUpdatesCloneable<AcceptorsArray>
 
   protected:
     AcceptorsArray &operator=(const AcceptorsArray &);
-    std::vector<AcceptUpdates *> d_acceptors;
+    std::vector<std::unique_ptr<AcceptUpdates> > d_acceptors;
 };
 }
 #endif  // EZHIC_ACCEPTINTERFACE_H

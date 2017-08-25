@@ -10,8 +10,8 @@ size_t Timer::now() const
         .count();
 }
 
-Timer *Timer::clone() const
+std::unique_ptr<Timer> Timer::clone() const
 {
-    return new Timer();
+    return std::unique_ptr<Timer>{new Timer()};
 }
 }

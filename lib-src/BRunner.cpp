@@ -12,7 +12,7 @@ BRunner::BRunner(const Label &label)
 }
 
 // will operate on user-owned circuit, bundle, timer
-BRunner::BRunner(Circuit &c, const Bundle &b, Timer *t)
+BRunner::BRunner(Circuit &c, const Bundle &b, Timer &t)
 : d_label(""), d_circuit(c), d_bundle(b), d_timer(t)
 {
 }

@@ -21,13 +21,10 @@ Event TimeoutTagger::acceptUpdate(const EventWrapper *task) const
     return event;
 }
 
-AcceptorsArray::AcceptorsArray(const AcceptorsArray &rhs)
-{
-    for (std::vector<AcceptUpdates *>::const_iterator it =
-             rhs.d_acceptors.begin();
-         it != rhs.d_acceptors.end();
-         ++it) {
-        d_acceptors.push_back((*it)->clone());
+AcceptorsArray::AcceptorsArray(const AcceptorsArray &rhs) {
+    for (const auto &acceptor : rhs.d_acceptors)
+    {
+        d_acceptors.push_back(acceptor->clone());
     }
 }
 
@@ -39,20 +36,13 @@ void AcceptorsArray::cloneIn(const AcceptUpdates &acpt)
 Event AcceptorsArray::acceptUpdate(const EventWrapper *task) const
 {
     Event event = AcceptUpdates::acceptUpdate(task);
-    for (std::vector<AcceptUpdates *>::const_iterator it = d_acceptors.begin();
-         it != d_acceptors.end();
-         ++it) {
-        event = (*it)->acceptUpdate(task);
+    for (const auto& acceptor : d_acceptors) {
+        event = acceptor->acceptUpdate(task);
     }
     return event;
 }
 
 AcceptorsArray::~AcceptorsArray()
 {
-    for (std::vector<AcceptUpdates *>::iterator it = d_acceptors.begin();
-         it != d_acceptors.end();
-         ++it) {
-        delete *it;
-    }
 }
 }

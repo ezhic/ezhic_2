@@ -16,9 +16,9 @@ EventWrapper::~EventWrapper()
 {
 }
 
-void EventWrapper::timer(const Timer *timer)
+void EventWrapper::timer(const Timer &timer)
 {
-    d_timer = timer;
+    d_timer = &timer;
 }
 
 void EventWrapper::start()

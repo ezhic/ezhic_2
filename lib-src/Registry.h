@@ -27,7 +27,7 @@ class Timer;  // forward
 class Registry
 {
   public:
-    Timer *timer() const { return d_timer; }
+    const Timer &timer() const;
     // Own a clone of the given object implementing Timer.
     Registry &cloneInTimer(const Timer &timer);
 
@@ -53,14 +53,14 @@ class Registry
     Registry &operator=(const Registry &);
 
     static Registry *s_registry;
-    Timer *d_timer;
+    std::unique_ptr<Timer> d_timer;
     std::map<Label, Bundle> d_bundles;
     std::map<Label, Circuit> d_circuits;
 };
 
 namespace ezreg {
 // expose registry methods:
-Timer *timer();
+const Timer &timer();
 void cloneInTimer(const Timer &timer);
 const Bundle &getBundle(const Label &label);
 const Bundle &writeBundle(const Label &label, const Bundle &b);

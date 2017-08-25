@@ -2,6 +2,7 @@
 #define INCLUDED_INTENTIONTAGGER
 
 #include "AcceptUpdates.h"
+#include "Circuitry.h"
 #include "Event.h"
 
 #include <vector>
@@ -9,11 +10,7 @@
 namespace ezhic {
 
 class Circuit;
-
-// forward declarations of functors
-namespace Circuitry {
-class TracePredicate;
-}
+class TraceChecker;
 
 // Stateless utility: will use injected logic to figure
 // whether a given circuit should run
@@ -23,6 +20,7 @@ class IntentionTagger
     IntentionTagger() {}
     IntentionTagger(const IntentionTagger &);
     IntentionTagger &operator=(const IntentionTagger &);
+
     void swap(IntentionTagger &rhs);
 
     virtual ~IntentionTagger();
@@ -46,7 +44,8 @@ class IntentionTagger
                              const Circuitry::TracePredicate &checker);
 
   private:
-    std::vector<const Circuitry::TracePredicate *> d_checkers[NONE];
+    bool anyChecker(IntentionTagger::CheckerType type, const TraceChecker &traceChecker) const;
+    std::vector<std::unique_ptr<Circuitry::TracePredicate> > d_checkers[NONE];
 };
 }
 #endif  // INCLUDED_INTENTIONTAGGER

@@ -12,12 +12,12 @@ struct BRunner
     // will use global registry to initialize
     explicit BRunner(const Label &label);
     // will operate on user-owned circuit, bundle, timer
-    BRunner(Circuit &c, const Bundle &b, Timer *t);
+    BRunner(Circuit &c, const Bundle &b, Timer &t);
     virtual ~BRunner() {}
     const Label d_label;
     Circuit &d_circuit;
     const Bundle &d_bundle;
-    const Timer *d_timer;
+    const Timer &d_timer;
 
     // allow intercepting type-erased result for post-run in derived classes
     // we pledge to call it for each run (after updating acceptors)

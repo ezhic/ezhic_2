@@ -50,8 +50,22 @@ struct TNullable : public StackValue<T>
     bool operator==(TNullable &rhs) const { return d_value == rhs.d_value; }
     bool isNull() const { return d_isNull; }
     void reset() { d_isNull = true; }
-    const T &value() const { return d_value; }
-    T &value() { return d_value; }
+    const T &operator*() const { return d_value; }
+    T &operator*() { return d_value; }
+
+    const T &value() const
+    {
+        if (d_isNull)
+            throw std::logic_error("Optional is null");
+        return d_value;
+    }
+    T &value()
+    {
+        if (d_isNull)
+            throw std::logic_error("Optional is null");
+        return d_value;
+    }
+
     virtual TypeErasedBase *clone() const { return new TNullable(d_value); }
 
   protected:

@@ -2,6 +2,7 @@
 #define INCLUDED_BUNDLE
 
 #include <Circuitry/IntentionTagger.h>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -35,7 +36,7 @@ class Bundle : public AcceptUpdatesCloneable<Bundle>
 
   protected:
     IntentionTagger d_intentionTagger;
-    AcceptUpdates *d_acceptor;
+    std::unique_ptr<AcceptUpdates> d_acceptor;
     bool d_isRethrow;
 };
 

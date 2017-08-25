@@ -12,16 +12,17 @@ class TracePredicate
     virtual ~TracePredicate() {}
     // Const as circuitry (breakers, menders, probers) should be stateless.
     virtual bool operator()(const EventTrace &history) const { return false; }
-    virtual TracePredicate *clone() const = 0;
+    virtual std::unique_ptr<TracePredicate> clone() const = 0;
 };
 
 template <typename Derived>
 class TracePredicateCloneable : public TracePredicate
 {
   public:
-    virtual TracePredicate *clone() const
+    virtual std::unique_ptr<TracePredicate> clone() const
     {
-        return new Derived(static_cast<Derived const &>(*this));
+        return std::unique_ptr<TracePredicate>{
+            new Derived(static_cast<Derived const &>(*this))};
     }
 };
 

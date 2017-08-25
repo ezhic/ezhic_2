@@ -76,8 +76,8 @@ static bool probingChecker(const Event &event)
 bool ProbeAfterK::operator()(const EventTrace &history) const
 {
     size_t count = 0;
-    EventTrace::const_iterator it = history.begin();
-    while (it != history.end() && probingChecker(*it) && count <= d_k) {
+    auto it = history.cbegin();
+    while (it != history.cend() && probingChecker(*it) && count <= d_k) {
         ++count;
         ++it;
     }

@@ -8,21 +8,22 @@
 
 using namespace ezhic;
 
-Bundle::Bundle() : d_acceptor(0), d_isRethrow(false)
+Bundle::Bundle() : d_acceptor(), d_isRethrow(false)
 {
 }
 
 Bundle::~Bundle()
 {
-    if (d_acceptor)
-        delete d_acceptor;
 }
 
 Bundle::Bundle(const Bundle &rhs)
 {
     d_intentionTagger = rhs.d_intentionTagger;
     d_isRethrow = rhs.isRethrow();
-    d_acceptor = rhs.d_acceptor ? rhs.d_acceptor->clone() : 0;
+    if (rhs.d_acceptor)
+        rhs.d_acceptor->clone().swap(d_acceptor);
+    else
+        d_acceptor.reset(nullptr);
 }
 
 Bundle &Bundle::operator=(const Bundle &rhs)
@@ -30,7 +31,10 @@ Bundle &Bundle::operator=(const Bundle &rhs)
     if (this != &rhs) {
         d_intentionTagger = rhs.d_intentionTagger;
         d_isRethrow = rhs.isRethrow();
-        d_acceptor = rhs.d_acceptor ? rhs.d_acceptor->clone() : 0;
+        if (rhs.d_acceptor)
+            rhs.d_acceptor->clone().swap(d_acceptor);
+        else
+            d_acceptor.reset(nullptr);
     }
     return *this;
 }
@@ -54,9 +58,7 @@ Event Bundle::acceptUpdate(const EventWrapper *task) const
 
 Bundle &Bundle::replaceWithClone(const AcceptUpdates &acceptor)
 {
-    if (d_acceptor)
-        delete d_acceptor;
-    d_acceptor = acceptor.clone();
+    acceptor.clone().swap(d_acceptor);
     return *this;
 }
 

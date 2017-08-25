@@ -8,29 +8,21 @@ struct TraceChecker
 {  // just binds a history and executes functors with it
     TraceChecker(const EventTrace &history) : d_history(history) {}
     template <typename Predicate>
-    bool operator()(const Predicate *predicate) const
+    bool operator()(const Predicate &predicate) const
     {
-        return predicate ? (*predicate)(d_history) : false;
+        return (*predicate)(d_history);
     }
 
     const EventTrace &d_history;
 };
 
-template <typename CVector, typename Predicate>
-static bool hasMatchesWithPredicate(const CVector &checkers,
-                                    Predicate predicate)
-{
-    return checkers.end() !=
-           std::find_if(checkers.begin(), checkers.end(), predicate);
-};
-
 Event::Intention IntentionTagger::operator()(Circuit &circuit) const
 {
     const EventTrace &eventTrace = circuit.eventTrace();
+    TraceChecker traceChecker(eventTrace);
     Circuit::Health currentCircuitHealth = circuit.health();
 
-    if (hasMatchesWithPredicate(d_checkers[SHOULD_BREAK],
-                                TraceChecker(eventTrace))) {
+    if (anyChecker(SHOULD_BREAK, traceChecker)) {
         circuit.health(Circuit::BAD);
         return Event::NO_RUN;
     }
@@ -39,15 +31,12 @@ Event::Intention IntentionTagger::operator()(Circuit &circuit) const
         return Event::ROUTINE;
 
     // circuit state is bad
-    if (hasMatchesWithPredicate(d_checkers[SHOULD_MEND],
-                                TraceChecker(eventTrace))) {
+    if (anyChecker(SHOULD_MEND, traceChecker)) {
         circuit.health(Circuit::GOOD);
         return Event::ROUTINE;
     }
 
-    bool shouldProbe = hasMatchesWithPredicate(d_checkers[SHOULD_PROBE],
-                                               TraceChecker(eventTrace));
-    if (shouldProbe) {
+    if (anyChecker(SHOULD_PROBE, traceChecker)) {
         return Event::PROBE;
     }
     return Event::NO_RUN;
@@ -56,11 +45,8 @@ Event::Intention IntentionTagger::operator()(Circuit &circuit) const
 IntentionTagger::IntentionTagger(const IntentionTagger &rhs)
 {
     for (unsigned t = 0; t != NONE; ++t)
-        for (std::vector<const Circuitry::TracePredicate *>::const_iterator
-                 it = rhs.d_checkers[t].begin();
-             it != rhs.d_checkers[t].end();
-             ++it) {
-            d_checkers[t].push_back((*it)->clone());
+        for (const auto& checker : rhs.d_checkers[t]) {
+            d_checkers[t].push_back(checker->clone());
         }
 }
 
@@ -68,11 +54,8 @@ IntentionTagger &IntentionTagger::operator=(const IntentionTagger &rhs)
 {
     if (this != &rhs) {
         for (unsigned t = 0; t != NONE; ++t)
-            for (std::vector<const Circuitry::TracePredicate *>::const_iterator
-                     it = rhs.d_checkers[t].begin();
-                 it != rhs.d_checkers[t].end();
-                 ++it) {
-                d_checkers[t].push_back((*it)->clone());
+            for (const auto& checker : rhs.d_checkers[t]) {
+                d_checkers[t].push_back(checker->clone());
             }
     }
     return *this;
@@ -86,12 +69,6 @@ void IntentionTagger::swap(IntentionTagger &rhs)
 
 IntentionTagger::~IntentionTagger()
 {
-    for (unsigned t = 0; t != NONE; ++t)
-        for (std::vector<const Circuitry::TracePredicate *>::iterator it =
-                 d_checkers[t].begin();
-             it != d_checkers[t].end();
-             ++it)
-            delete *it;
 }
 
 IntentionTagger &
@@ -101,5 +78,11 @@ IntentionTagger::cloneIn(CheckerType type,
     if (type < NONE)
         d_checkers[type].push_back(checker.clone());
     return *this;
+}
+
+bool IntentionTagger::anyChecker(IntentionTagger::CheckerType type, const TraceChecker &traceChecker) const
+{
+    const auto& checkers = d_checkers[type];
+    return std::any_of(checkers.cbegin(), checkers.cend(), traceChecker);
 }
 }
